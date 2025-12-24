@@ -11,6 +11,8 @@ import {
   AlertTriangle,
   Server,
   Save,
+  Zap,
+  Shield,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -60,10 +62,10 @@ export default function SettingsPage() {
     <AdminLayout>
       <div className="page-container">
         {/* Page Header */}
-        <header className="page-header pt-16 lg:pt-0">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-              <Settings className="h-5 w-5 text-primary" />
+        <header className="page-header pt-16 lg:pt-0 animate-fade-in">
+          <div className="flex items-center gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/10">
+              <Settings className="h-6 w-6 text-primary" />
             </div>
             <div>
               <h1 className="page-title">System Settings</h1>
@@ -76,178 +78,203 @@ export default function SettingsPage() {
 
         <div className="grid gap-6 lg:grid-cols-2">
           {/* Feature Flags */}
-          <Card className="lg:col-span-2">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <ToggleLeft className="h-5 w-5 text-primary" />
-                Feature Flags
-              </CardTitle>
-              <CardDescription>
-                Toggle features on/off globally. Changes take effect immediately.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {mockFeatureFlags.map((flag) => (
+          <div className="lg:col-span-2 glass-card overflow-hidden animate-fade-in" style={{ animationDelay: '100ms' }}>
+            <div className="border-b border-border/50 p-6">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/5">
+                  <ToggleLeft className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <h3 className="text-base font-semibold text-foreground">Feature Flags</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Toggle features on/off globally. Changes take effect immediately.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="p-6">
+              <div className="grid gap-4 sm:grid-cols-2">
+                {mockFeatureFlags.map((flag, index) => (
                   <div
                     key={flag.id}
-                    className="flex items-center justify-between rounded-lg border border-border p-4"
+                    className="group flex items-center justify-between rounded-xl border border-border/50 bg-accent/20 p-4 transition-all duration-300 hover:border-primary/30 hover:bg-accent/40 animate-fade-in"
+                    style={{ animationDelay: `${150 + index * 50}ms` }}
                   >
-                    <div className="space-y-1">
-                      <Label htmlFor={flag.id} className="text-sm font-medium text-foreground">
+                    <div className="space-y-1 pr-4">
+                      <Label htmlFor={flag.id} className="text-sm font-medium text-foreground cursor-pointer">
                         {flag.name}
                       </Label>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-muted-foreground leading-relaxed">
                         {flag.description}
                       </p>
                     </div>
-                    <Switch id={flag.id} checked={flag.enabled} />
+                    <Switch 
+                      id={flag.id} 
+                      checked={flag.enabled}
+                      className="data-[state=checked]:bg-primary"
+                    />
                   </div>
                 ))}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
           {/* Rate Limits */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Gauge className="h-5 w-5 text-primary" />
-                Rate Limits
-              </CardTitle>
-              <CardDescription>
-                Configure API and service rate limits
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
+          <div className="glass-card overflow-hidden animate-fade-in" style={{ animationDelay: '200ms' }}>
+            <div className="border-b border-border/50 p-6">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-warning/20 to-warning/5">
+                  <Gauge className="h-5 w-5 text-warning" />
+                </div>
+                <div>
+                  <h3 className="text-base font-semibold text-foreground">Rate Limits</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Configure API and service rate limits
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="p-6 space-y-5">
               <div className="space-y-2">
-                <Label htmlFor="analysis_limit" className="text-sm">
+                <Label htmlFor="analysis_limit" className="text-sm font-medium">
                   Analysis per minute (per user)
                 </Label>
                 <Input
                   id="analysis_limit"
                   type="number"
                   defaultValue={mockRateLimits.analysisPerMinute}
+                  className="input-premium"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="api_limit" className="text-sm">
+                <Label htmlFor="api_limit" className="text-sm font-medium">
                   API requests per hour (per key)
                 </Label>
                 <Input
                   id="api_limit"
                   type="number"
                   defaultValue={mockRateLimits.apiRequestsPerHour}
+                  className="input-premium"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="login_limit" className="text-sm">
+                <Label htmlFor="login_limit" className="text-sm font-medium">
                   Login attempts per hour (per IP)
                 </Label>
                 <Input
                   id="login_limit"
                   type="number"
                   defaultValue={mockRateLimits.loginAttemptsPerHour}
+                  className="input-premium"
                 />
               </div>
-              <Button className="w-full mt-4">
+              <Button className="w-full btn-glow group">
                 <Save className="mr-2 h-4 w-4" />
-                Save Rate Limits
+                <span>Save Rate Limits</span>
               </Button>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
           {/* Maintenance Mode */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5 text-warning" />
-                Maintenance Mode
-              </CardTitle>
-              <CardDescription>
-                Enable maintenance mode to temporarily disable access
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between rounded-lg border border-border p-4 bg-warning/5">
+          <div className="glass-card overflow-hidden animate-fade-in" style={{ animationDelay: '300ms' }}>
+            <div className="border-b border-border/50 p-6">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-warning/20 to-warning/5">
+                  <AlertTriangle className="h-5 w-5 text-warning" />
+                </div>
+                <div>
+                  <h3 className="text-base font-semibold text-foreground">Maintenance Mode</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Temporarily disable access for maintenance
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="p-6 space-y-5">
+              <div className="flex items-center justify-between rounded-xl border border-warning/20 bg-gradient-to-r from-warning/10 to-warning/5 p-4">
                 <div className="space-y-1">
                   <Label className="text-sm font-medium text-foreground">
                     Maintenance Mode
                   </Label>
                   <p className="text-xs text-muted-foreground">
-                    When enabled, users will see a maintenance page
+                    Users will see a maintenance page
                   </p>
                 </div>
-                <Switch />
+                <Switch className="data-[state=checked]:bg-warning" />
               </div>
-              <div className="rounded-lg border border-border p-4">
-                <Label className="text-sm font-medium text-foreground mb-2 block">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">
                   Status Page URL
                 </Label>
                 <Input
                   placeholder="https://status.mxlens.com"
                   defaultValue="https://status.mxlens.com"
+                  className="input-premium"
                 />
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
           {/* API Status */}
-          <Card className="lg:col-span-2">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Server className="h-5 w-5 text-primary" />
-                API Status Indicators
-              </CardTitle>
-              <CardDescription>
-                Real-time status of all API endpoints and services
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+          <div className="lg:col-span-2 glass-card overflow-hidden animate-fade-in" style={{ animationDelay: '400ms' }}>
+            <div className="border-b border-border/50 p-6">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/5">
+                  <Server className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <h3 className="text-base font-semibold text-foreground">API Status Indicators</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Real-time status of all API endpoints and services
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="p-6">
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 {[
-                  { name: "Analysis API", status: "operational", latency: "45ms" },
-                  { name: "Auth API", status: "operational", latency: "23ms" },
-                  { name: "Billing API", status: "operational", latency: "67ms" },
-                  { name: "Webhooks", status: "degraded", latency: "234ms" },
-                ].map((api) => (
+                  { name: "Analysis API", status: "operational", latency: "45ms", icon: Zap },
+                  { name: "Auth API", status: "operational", latency: "23ms", icon: Shield },
+                  { name: "Billing API", status: "operational", latency: "67ms", icon: Server },
+                  { name: "Webhooks", status: "degraded", latency: "234ms", icon: Server },
+                ].map((api, index) => (
                   <div
                     key={api.name}
-                    className="rounded-lg border border-border p-4"
+                    className="group relative rounded-xl border border-border/50 bg-accent/20 p-5 transition-all duration-300 hover:border-primary/30 hover:bg-accent/40 animate-fade-in"
+                    style={{ animationDelay: `${450 + index * 50}ms` }}
                   >
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-foreground">
-                        {api.name}
-                      </span>
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 group-hover:scale-110 transition-transform duration-300">
+                        <api.icon className="h-5 w-5 text-primary" />
+                      </div>
                       <span
                         className={cn(
-                          "h-2 w-2 rounded-full animate-pulse-subtle",
-                          api.status === "operational"
-                            ? "bg-success"
-                            : "bg-warning"
+                          "dot-indicator",
+                          api.status === "operational" ? "dot-success" : "dot-warning"
                         )}
                       />
                     </div>
+                    <p className="text-sm font-medium text-foreground mb-1">
+                      {api.name}
+                    </p>
                     <div className="flex items-center justify-between">
                       <span
                         className={cn(
-                          "text-xs capitalize",
-                          api.status === "operational"
-                            ? "text-success"
-                            : "text-warning"
+                          "text-xs font-medium capitalize",
+                          api.status === "operational" ? "text-success" : "text-warning"
                         )}
                       >
                         {api.status}
                       </span>
-                      <span className="text-xs font-mono text-muted-foreground">
+                      <span className="text-xs font-mono text-muted-foreground px-2 py-1 rounded-md bg-muted/50">
                         {api.latency}
                       </span>
                     </div>
                   </div>
                 ))}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       </div>
     </AdminLayout>

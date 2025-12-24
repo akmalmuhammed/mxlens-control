@@ -16,22 +16,37 @@ interface Activity {
   timestamp: string;
 }
 
-const activityIcons = {
-  user_created: UserPlus,
-  security: Shield,
-  alert: AlertTriangle,
-  settings: Settings,
-  login: LogIn,
-  password_reset: Key,
-};
-
-const activityColors = {
-  user_created: "text-success bg-success/10",
-  security: "text-primary bg-primary/10",
-  alert: "text-warning bg-warning/10",
-  settings: "text-muted-foreground bg-muted",
-  login: "text-primary bg-primary/10",
-  password_reset: "text-warning bg-warning/10",
+const activityConfig = {
+  user_created: { 
+    icon: UserPlus, 
+    gradient: "from-success/20 to-success/5",
+    iconColor: "text-success",
+  },
+  security: { 
+    icon: Shield, 
+    gradient: "from-primary/20 to-primary/5",
+    iconColor: "text-primary",
+  },
+  alert: { 
+    icon: AlertTriangle, 
+    gradient: "from-warning/20 to-warning/5",
+    iconColor: "text-warning",
+  },
+  settings: { 
+    icon: Settings, 
+    gradient: "from-muted to-muted/50",
+    iconColor: "text-muted-foreground",
+  },
+  login: { 
+    icon: LogIn, 
+    gradient: "from-primary/20 to-primary/5",
+    iconColor: "text-primary",
+  },
+  password_reset: { 
+    icon: Key, 
+    gradient: "from-warning/20 to-warning/5",
+    iconColor: "text-warning",
+  },
 };
 
 // Mock data - will be replaced with Supabase query
@@ -82,34 +97,45 @@ const mockActivities: Activity[] = [
 
 export function ActivityFeed() {
   return (
-    <div className="rounded-lg border border-border bg-card">
-      <div className="border-b border-border p-4">
-        <h3 className="text-sm font-semibold text-foreground">Recent Activity</h3>
-        <p className="text-xs text-muted-foreground">Last 20 admin actions</p>
+    <div className="glass-card overflow-hidden">
+      <div className="border-b border-border/50 p-5">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-sm font-semibold text-foreground">Recent Activity</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">Last 20 admin actions</p>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="dot-indicator dot-success" />
+            <span className="text-xs text-muted-foreground">Live</span>
+          </div>
+        </div>
       </div>
-      <div className="max-h-[400px] overflow-y-auto">
-        <div className="divide-y divide-border">
+      <div className="max-h-[420px] overflow-y-auto">
+        <div className="divide-y divide-border/30">
           {mockActivities.map((activity, index) => {
-            const Icon = activityIcons[activity.type];
+            const config = activityConfig[activity.type];
+            const Icon = config.icon;
             return (
               <div
                 key={activity.id}
-                className="flex items-start gap-3 p-4 transition-colors hover:bg-muted/30"
+                className="group flex items-start gap-4 p-4 transition-all duration-300 hover:bg-accent/30 cursor-pointer animate-fade-in"
                 style={{ animationDelay: `${index * 50}ms` }}
               >
                 <div
                   className={cn(
-                    "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
-                    activityColors[activity.type]
+                    "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br transition-transform duration-300 group-hover:scale-110",
+                    config.gradient
                   )}
                 >
-                  <Icon className="h-4 w-4" />
+                  <Icon className={cn("h-4 w-4", config.iconColor)} />
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-foreground">{activity.message}</p>
-                  <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
-                    <span className="truncate">{activity.actor}</span>
-                    <span>•</span>
+                <div className="flex-1 min-w-0 space-y-1">
+                  <p className="text-sm text-foreground group-hover:text-primary transition-colors duration-300">
+                    {activity.message}
+                  </p>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <span className="truncate font-mono">{activity.actor}</span>
+                    <span className="text-border">•</span>
                     <span className="shrink-0">{activity.timestamp}</span>
                   </div>
                 </div>
