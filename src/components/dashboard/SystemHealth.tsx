@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { CheckCircle, AlertCircle, XCircle } from "lucide-react";
+import { CheckCircle, AlertCircle, XCircle, Activity } from "lucide-react";
 
 interface HealthItem {
   name: string;
@@ -22,18 +22,21 @@ const statusConfig = {
     icon: CheckCircle,
     color: "text-success",
     bgColor: "bg-success/10",
+    dotClass: "dot-success",
     label: "Operational",
   },
   degraded: {
     icon: AlertCircle,
     color: "text-warning",
     bgColor: "bg-warning/10",
+    dotClass: "dot-warning",
     label: "Degraded",
   },
   down: {
     icon: XCircle,
     color: "text-destructive",
     bgColor: "bg-destructive/10",
+    dotClass: "dot-error",
     label: "Down",
   },
 };
@@ -43,11 +46,16 @@ export function SystemHealth() {
   const hasDegraded = healthItems.some((item) => item.status === "degraded");
 
   return (
-    <div className="rounded-lg border border-border bg-card">
-      <div className="flex items-center justify-between border-b border-border p-4">
-        <div>
-          <h3 className="text-sm font-semibold text-foreground">System Health</h3>
-          <p className="text-xs text-muted-foreground">Real-time service status</p>
+    <div className="glass-card overflow-hidden">
+      <div className="flex items-center justify-between border-b border-border/50 p-5">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/5">
+            <Activity className="h-4 w-4 text-primary" />
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-foreground">System Health</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">Real-time service status</p>
+          </div>
         </div>
         <div
           className={cn(
@@ -61,40 +69,44 @@ export function SystemHealth() {
         >
           <span
             className={cn(
-              "h-1.5 w-1.5 rounded-full animate-pulse-subtle",
-              allHealthy ? "bg-success" : hasDegraded ? "bg-warning" : "bg-destructive"
+              "dot-indicator",
+              allHealthy ? "dot-success" : hasDegraded ? "dot-warning" : "dot-error"
             )}
           />
-          {allHealthy ? "All Systems Operational" : hasDegraded ? "Partial Outage" : "Major Outage"}
+          {allHealthy ? "All Operational" : hasDegraded ? "Partial Outage" : "Major Outage"}
         </div>
       </div>
-      <div className="divide-y divide-border">
-        {healthItems.map((item) => {
+      <div className="divide-y divide-border/30">
+        {healthItems.map((item, index) => {
           const config = statusConfig[item.status];
           const Icon = config.icon;
           return (
             <div
               key={item.name}
-              className="flex items-center justify-between px-4 py-3"
+              className="group flex items-center justify-between px-5 py-4 transition-all duration-300 hover:bg-accent/30 animate-fade-in"
+              style={{ animationDelay: `${index * 30}ms` }}
             >
               <div className="flex items-center gap-3">
-                <div className={cn("rounded-md p-1.5", config.bgColor)}>
-                  <Icon className={cn("h-3.5 w-3.5", config.color)} />
+                <div className={cn(
+                  "flex h-8 w-8 items-center justify-center rounded-lg transition-transform duration-300 group-hover:scale-110",
+                  config.bgColor
+                )}>
+                  <Icon className={cn("h-4 w-4", config.color)} />
                 </div>
-                <span className="text-sm text-foreground">{item.name}</span>
+                <span className="text-sm font-medium text-foreground">{item.name}</span>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-4">
                 {item.latency && (
-                  <span className="text-xs text-muted-foreground font-mono">
+                  <span className={cn(
+                    "text-xs font-mono px-2 py-1 rounded-md transition-colors duration-300",
+                    item.status === "degraded" 
+                      ? "text-warning bg-warning/10" 
+                      : "text-muted-foreground bg-muted/50"
+                  )}>
                     {item.latency}
                   </span>
                 )}
-                <span
-                  className={cn(
-                    "text-xs font-medium",
-                    config.color
-                  )}
-                >
+                <span className={cn("text-xs font-medium min-w-[80px] text-right", config.color)}>
                   {config.label}
                 </span>
               </div>

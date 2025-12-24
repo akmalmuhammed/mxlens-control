@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
@@ -12,6 +12,7 @@ import {
   X,
   Shield,
   LogOut,
+  ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -33,7 +34,12 @@ const navItems: NavItem[] = [
 
 export function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const location = useLocation();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // TODO: Replace with actual user role from auth context
   const userRole = "SuperAdmin";
@@ -48,69 +54,116 @@ export function Sidebar() {
       <Button
         variant="ghost"
         size="icon"
-        className="fixed top-4 left-4 z-50 lg:hidden"
+        className="fixed top-4 left-4 z-50 lg:hidden glass-card border-border/50 backdrop-blur-xl"
         onClick={() => setIsOpen(!isOpen)}
       >
-        {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        <div className="relative w-5 h-5">
+          <Menu 
+            className={cn(
+              "h-5 w-5 absolute inset-0 transition-all duration-300",
+              isOpen ? "rotate-90 opacity-0" : "rotate-0 opacity-100"
+            )} 
+          />
+          <X 
+            className={cn(
+              "h-5 w-5 absolute inset-0 transition-all duration-300",
+              isOpen ? "rotate-0 opacity-100" : "-rotate-90 opacity-0"
+            )} 
+          />
+        </div>
       </Button>
 
       {/* Mobile overlay */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm lg:hidden"
-          onClick={() => setIsOpen(false)}
-        />
-      )}
+      <div
+        className={cn(
+          "fixed inset-0 z-40 bg-background/60 backdrop-blur-md lg:hidden transition-opacity duration-300",
+          isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        )}
+        onClick={() => setIsOpen(false)}
+      />
 
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed left-0 top-0 z-40 h-full w-64 border-r border-sidebar-border bg-sidebar transition-transform duration-300 lg:translate-x-0",
+          "fixed left-0 top-0 z-40 h-full w-72 border-r border-sidebar-border bg-sidebar/95 backdrop-blur-xl transition-all duration-500 ease-out-expo lg:translate-x-0",
           isOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
         <div className="flex h-full flex-col">
           {/* Logo */}
-          <div className="flex h-16 items-center gap-2 border-b border-sidebar-border px-6">
-            <Shield className="h-6 w-6 text-primary" />
-            <span className="text-lg font-semibold text-foreground">
-              MXLens Admin
-            </span>
+          <div className="flex h-16 items-center gap-3 border-b border-sidebar-border/50 px-6">
+            <div className="relative">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20">
+                <Shield className="h-5 w-5 text-primary" />
+              </div>
+              <div className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-success border-2 border-sidebar" />
+            </div>
+            <div>
+              <span className="text-base font-semibold text-foreground tracking-tight">
+                MXLens
+              </span>
+              <span className="text-xs text-muted-foreground block -mt-0.5">Admin Panel</span>
+            </div>
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 space-y-1 p-4">
-            {filteredNavItems.map((item) => {
+          <nav className="flex-1 space-y-1 p-4 overflow-y-auto">
+            <p className="text-[10px] font-medium text-muted-foreground/70 uppercase tracking-widest px-3 mb-3">
+              Navigation
+            </p>
+            {filteredNavItems.map((item, index) => {
               const isActive = location.pathname === item.href;
               return (
                 <NavLink
                   key={item.href}
                   to={item.href}
                   onClick={() => setIsOpen(false)}
+                  style={{ animationDelay: mounted ? `${index * 50}ms` : '0ms' }}
                   className={cn(
-                    "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors",
+                    "sidebar-link group",
+                    mounted && "animate-slide-in-left",
                     isActive
-                      ? "bg-primary/10 text-primary"
-                      : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                      ? "sidebar-link-active"
+                      : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
                   )}
                 >
-                  <item.icon
+                  <div className={cn(
+                    "flex h-8 w-8 items-center justify-center rounded-lg transition-all duration-300",
+                    isActive 
+                      ? "bg-primary/15" 
+                      : "bg-transparent group-hover:bg-accent/50"
+                  )}>
+                    <item.icon
+                      className={cn(
+                        "h-4 w-4 transition-all duration-300",
+                        isActive 
+                          ? "text-primary" 
+                          : "text-muted-foreground group-hover:text-foreground"
+                      )}
+                    />
+                  </div>
+                  <span className="flex-1">{item.label}</span>
+                  <ChevronRight 
                     className={cn(
-                      "h-4 w-4",
-                      isActive ? "text-primary" : "text-muted-foreground"
-                    )}
+                      "h-4 w-4 text-muted-foreground/50 transition-all duration-300",
+                      isActive 
+                        ? "opacity-100 translate-x-0" 
+                        : "opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0"
+                    )} 
                   />
-                  {item.label}
                 </NavLink>
               );
             })}
           </nav>
 
           {/* User section */}
-          <div className="border-t border-sidebar-border p-4">
-            <div className="flex items-center gap-3 rounded-md bg-sidebar-accent/50 p-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 text-primary">
-                <span className="text-sm font-medium">AD</span>
+          <div className="border-t border-sidebar-border/50 p-4">
+            <div className="group flex items-center gap-3 rounded-xl bg-gradient-to-r from-sidebar-accent/50 to-transparent p-3 transition-all duration-300 hover:from-sidebar-accent cursor-pointer">
+              <div className="relative">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary/30 to-primary/10 text-primary font-medium border border-primary/20">
+                  AD
+                </div>
+                <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-success border-2 border-sidebar" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="truncate text-sm font-medium text-foreground">
@@ -123,7 +176,7 @@ export function Sidebar() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                className="h-8 w-8 text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity duration-300"
               >
                 <LogOut className="h-4 w-4" />
               </Button>
