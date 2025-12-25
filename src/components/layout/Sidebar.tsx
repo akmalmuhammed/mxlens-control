@@ -12,9 +12,9 @@ import {
   X,
   LogOut,
   ChevronRight,
+  Scan,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import mxlensIcon from "@/assets/mxlens-icon.png";
 
 interface NavItem {
   label: string;
@@ -93,8 +93,8 @@ export function Sidebar() {
           {/* Logo */}
           <div className="flex h-16 items-center gap-3 border-b border-sidebar-border/50 px-6">
             <div className="relative">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-transparent border border-primary/20 overflow-hidden">
-                <img src={mxlensIcon} alt="MXLens" className="h-7 w-7 object-contain" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent border border-primary/30">
+                <Scan className="h-5 w-5 text-primary-foreground" />
               </div>
               <div className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-success border-2 border-sidebar" />
             </div>
